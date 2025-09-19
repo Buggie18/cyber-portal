@@ -27,12 +27,12 @@ cd cyber-portal
 
 # install dependencies for each app
 cd backend && npm install
-cd ../portal-frontend && npm install
+cd portal-frontend && npm install
 ```
 
 ### 2) Configure environment variables (Backend)
 
-Example values:
+Create `backend/.env` (do not commit this file). Example values:
 
 ```
 PORT=8080
@@ -45,7 +45,8 @@ INIT_DB=false
 JWT_SECRET=replace-with-strong-secret
 ```
 
-- To initialize tables using `backend/init.sql` on startup, set `INIT_DB=true` temporarily for the first run.
+- Ensure the database named in `DB_NAME` exists in PostgreSQL (create it if needed).
+To initialize tables using `backend/init.sql` on startup, set `INIT_DB=true` for the first run, then set it back to `false`.
 
 ### 3) Run locally
 
@@ -62,7 +63,9 @@ npm start
 npm run dev
 # Vite dev server: http://localhost:5173 (by default)
 ```
-
+Use two terminals:
+- Terminal 1 (backend): cd backend && npm start
+- Terminal 2 (frontend): cd portal-frontend && npm run dev
 The frontend dev server proxies `/api` to `http://localhost:8080` via `vite.config.js`.
 
 ## Backend Overview
@@ -81,6 +84,13 @@ The frontend dev server proxies `/api` to `http://localhost:8080` via `vite.conf
 - Auth token stored in `localStorage` as `token`
 - Protected routes guard access to `Dashboard` and `Policies`
 
+## Scripts
 
+- Backend:
+  - npm start — start API on http://localhost:8080
+- Frontend:
+  - npm run dev — Vite dev server (proxy /api to backend)
+  - npm run build — production build
+  - npm run preview — preview production build
 
 
