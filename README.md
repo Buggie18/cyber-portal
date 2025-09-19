@@ -1,6 +1,6 @@
 # Cyber Portal
 
-A simple monorepo with a Node/Express/PostgreSQL backend and a React (Vite) frontend.
+Node+Express+PostgreSQL backend and a React (Vite) frontend.
 
 ## Project Structure
 
@@ -22,7 +22,7 @@ cyber-portal/
 
 ```bash
 # from your workspace
-git clone https://github.com/<your-username>/<your-repo>.git
+git clone https://github.com/Buggie18/cyber-portal.git
 cd cyber-portal
 
 # install dependencies for each app
@@ -32,13 +32,13 @@ cd ../portal-frontend && npm install
 
 ### 2) Configure environment variables (Backend)
 
-Create `backend/.env` (do not commit this file). Example values:
+Example values:
 
 ```
 PORT=8080
 DB_USER=postgres
 DB_HOST=localhost
-DB_NAME=cyber_portal
+DB_NAME=cyberportal
 DB_PASSWORD=postgres
 DB_PORT=5432
 INIT_DB=false
@@ -81,24 +81,6 @@ The frontend dev server proxies `/api` to `http://localhost:8080` via `vite.conf
 - Auth token stored in `localStorage` as `token`
 - Protected routes guard access to `Dashboard` and `Policies`
 
-## Production Notes
 
-- Do not commit real secrets. Use environment variables in production.
-- Restrict CORS in `backend/index.js` for production (allow only your domain):
-  - Example: `app.use(cors({ origin: ["https://your-frontend-domain"] }))`
-- Configure a production database and set all `DB_*` variables accordingly.
-- Build the frontend with `npm run build` in `portal-frontend/` and serve the static files using a static host or via a reverse proxy to the backend.
 
-## Scripts
 
-- Backend (`backend/package.json`):
-  - `npm start` — start API
-  - `npm run dev` — start API (same as start; add nodemon if desired)
-- Frontend (`portal-frontend/package.json`):
-  - `npm run dev` — start Vite dev server
-  - `npm run build` — production build
-  - `npm run preview` — preview production build
-
-## License
-
-Specify your license here (e.g., MIT).
