@@ -66,7 +66,8 @@ npm run dev
 Use two terminals:
 - Terminal 1 (backend): cd backend && npm start
 - Terminal 2 (frontend): cd portal-frontend && npm run dev
-The frontend dev server proxies `/api` to `http://localhost:8080` via `vite.config.js`.
+
+  The frontend dev server proxies `/api` to `http://localhost:8080` via `vite.config.js`.
 
 ## Backend Overview
 
