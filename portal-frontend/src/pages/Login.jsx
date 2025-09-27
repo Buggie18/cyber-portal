@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { Container, TextField, Button, Typography, Box, Paper, InputAdornment, IconButton, Avatar, Stack } from "@mui/material";
 import { Visibility, VisibilityOff, LockOutlined } from "@mui/icons-material";
-
+import {jwtDecode} from "jwt-decode";
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,13 +20,36 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      console.log("Sending login request for:", username);
+  
       const res = await axios.post("/api/login", { username, password });
-      localStorage.setItem("token", res.data.token);
+      console.log("Login response:", res.data);
+  
+      const token = res.data.token;
+      if (!token) {
+        console.error("No token received!");
+        alert("Login failed! No token.");
+        return;
+      }
+  
+      console.log("Token received:", token);
+  
+      // Decode JWT
+      const decodedToken = jwtDecode(token);
+      console.log("Decoded token:", decodedToken);
+  
+      // Save token and role
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", decodedToken.role);
+      console.log("Role saved to localStorage:", decodedToken.role);
+  
       navigate("/dashboard");
     } catch (err) {
+      console.error("Login error:", err.response || err.message);
       alert("Login failed! Check username/password.");
     }
   };
+  
 
   return (
     <Container
