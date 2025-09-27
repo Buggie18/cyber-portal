@@ -51,8 +51,11 @@ export default function Navbar() {
                 Dashboard
               </Button>
               <Button color="inherit" component={Link} to="/policies?mode=view">
-  Policies
-</Button>
+                Policies
+              </Button>
+              <Button color="inherit" component={Link} to="/security-prediction">
+                Predict Security
+              </Button>
               <Button color="inherit" onClick={handleLogout}>
                 Logout
               </Button>

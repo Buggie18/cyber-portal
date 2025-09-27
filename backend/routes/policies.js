@@ -30,10 +30,14 @@ router.post("/policies", authenticateToken, async (req, res) => {
       [name, definition, created_by]
     );
 
-    res.json(result.rows[0]);
+    res.json({
+      success: true,
+      policy: result.rows[0],
+      message: "✅ Policy added successfully"
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to add policy" });
+    console.error("DB Error:", err);
+    res.status(500).json({ success: false, error: "❌ Failed to add policy" });
   }
 });
 
@@ -43,8 +47,8 @@ router.get("/policies", authenticateToken, async (req, res) => {
     const result = await pool.query("SELECT * FROM policies ORDER BY created_at DESC");
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch policies" });
+    console.error("DB Error:", err);
+    res.status(500).json({ error: "❌ Failed to fetch policies" });
   }
 });
 

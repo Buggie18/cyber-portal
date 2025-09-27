@@ -8,6 +8,7 @@ import Policies from "./pages/Policies";
 import Landing from "./pages/Landing";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
+import SecurityPredictionPage from "./pages/SecurityPredictionPage";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -19,7 +20,7 @@ function App() {
         <Route path="/" element={token ? <Dashboard /> : <Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        
         {/* Protected routes */}
         <Route
           path="/dashboard"
@@ -34,6 +35,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Policies />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/security-prediction"
+          element={
+            <ProtectedRoute>
+              <SecurityPredictionPage />
             </ProtectedRoute>
           }
         />
