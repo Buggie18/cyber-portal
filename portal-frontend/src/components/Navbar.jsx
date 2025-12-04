@@ -56,6 +56,9 @@ export default function Navbar() {
               <Button color="inherit" component={Link} to="/security-prediction">
                 Predict Security
               </Button>
+              <Button color="inherit" component={Link} to="/agents">
+                Agents
+              </Button>
               <Button color="inherit" onClick={handleLogout}>
                 Logout
               </Button>

@@ -22,7 +22,7 @@ const initDb = async () => {
     const initPath = path.join(__dirname, "init.sql");
     const initSql = fs.readFileSync(initPath).toString();
     await pool.query(initSql);
-    console.log("✅ Tables are ready (users, policies)");
+    console.log("✅ Tables are ready");
   } catch (err) {
     console.error("❌ Error initializing database:", err);
   }
