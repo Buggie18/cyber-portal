@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { Container, TextField, Button, Typography, Box, Paper, InputAdornment, IconButton, Avatar, Stack } from "@mui/material";
+import { Container, TextField, Button, Typography, Box, Paper, InputAdornment, IconButton, Avatar, Stack, useTheme } from "@mui/material";
 import { Visibility, VisibilityOff, PersonAddAlt1 } from "@mui/icons-material";
 
 export default function Register() {
@@ -10,6 +10,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
@@ -29,63 +30,171 @@ export default function Register() {
   };
 
   return (
-    <Container
-      maxWidth="sm"
-      sx={{ minHeight: "calc(100vh - 64px)", display: "flex", alignItems: "center", justifyContent: "center", py: 2 }}
+    <Box
+      sx={{
+        minHeight: "calc(100vh - 64px)",
+        background: theme.palette.mode === "dark"
+          ? "linear-gradient(135deg, #1a1f3a 0%, #0f1629 50%, #0a0e27 100%)"
+          : "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)",
+        backgroundAttachment: "fixed",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        py: 4,
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: theme.palette.mode === "dark"
+            ? "radial-gradient(circle at 20% 50%, rgba(74, 144, 226, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%)"
+            : "radial-gradient(circle at 20% 50%, rgba(25, 118, 210, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(66, 165, 245, 0.1) 0%, transparent 50%)",
+          pointerEvents: "none",
+        },
+      }}
     >
-      <Paper elevation={6} sx={{ p: { xs: 2.5, md: 4 }, width: "100%" }}>
-        <Stack alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
-          <Avatar sx={{ bgcolor: "primary.main", width: 48, height: 48 }}>
-            <PersonAddAlt1 />
-          </Avatar>
-          <Typography variant="h5" fontWeight={600}>
-            Create your account
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Join to manage your security policies
-          </Typography>
-        </Stack>
-        <Box component="form" onSubmit={handleRegister}>
-          <TextField
-            label="Username"
-            fullWidth
-            margin="normal"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username"
-            required
-          />
-          <TextField
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            fullWidth
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-            required
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                    onClick={() => setShowPassword((s) => !s)}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
+      <Container maxWidth="sm" sx={{ position: "relative", zIndex: 1 }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 3, md: 5 },
+            width: "100%",
+            background: theme.palette.mode === "dark"
+              ? "rgba(26, 31, 58, 0.85)"
+              : "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(15px)",
+            border: theme.palette.mode === "dark"
+              ? "1px solid rgba(74, 144, 226, 0.2)"
+              : "1px solid rgba(25, 118, 210, 0.2)",
+            borderRadius: 4,
+          }}
+        >
+          <Stack alignItems="center" spacing={1} sx={{ mb: 3 }}>
+            <Avatar
+              sx={{
+                width: 64,
+                height: 64,
+                background: theme.palette.mode === "dark"
+                  ? "linear-gradient(135deg, #4a90e2 0%, #00d4ff 100%)"
+                  : "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+              }}
+            >
+              <PersonAddAlt1 />
+            </Avatar>
+            <Typography
+              variant="h5"
+              fontWeight={600}
+              sx={{
+                background: theme.palette.mode === "dark"
+                  ? "linear-gradient(135deg, #4a90e2 0%, #00d4ff 100%)"
+                  : "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              Create your account
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
+              }}
+            >
+              Join to manage your security policies
+            </Typography>
+          </Stack>
+          <Box component="form" onSubmit={handleRegister}>
+            <TextField
+              label="Username"
+              fullWidth
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              required
+            />
+            <TextField
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              fullWidth
+              margin="normal"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+              required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      onClick={() => setShowPassword((s) => !s)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              size="large"
+              sx={{
+                mt: 2,
+                background: theme.palette.mode === "dark"
+                  ? "linear-gradient(135deg, #4a90e2 0%, #00d4ff 100%)"
+                  : "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+                color: "white",
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 600,
+                textTransform: "none",
+                boxShadow: theme.palette.mode === "dark"
+                  ? "0 4px 12px rgba(74, 144, 226, 0.3)"
+                  : "0 4px 12px rgba(25, 118, 210, 0.3)",
+                "&:hover": {
+                  background: theme.palette.mode === "dark"
+                    ? "linear-gradient(135deg, #5aa0f2 0%, #10e4ff 100%)"
+                    : "linear-gradient(135deg, #1565c0 0%, #1e88e5 100%)",
+                  transform: "translateY(-2px)",
+                  boxShadow: theme.palette.mode === "dark"
+                    ? "0 6px 16px rgba(74, 144, 226, 0.4)"
+                    : "0 6px 16px rgba(25, 118, 210, 0.4)",
+                },
+              }}
+            >
+              Register
+            </Button>
+          </Box>
+          <Typography
+            sx={{ mt: 2 }}
+            textAlign="center"
+            variant="body2"
+            sx={{
+              color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
             }}
-          />
-          <Button type="submit" variant="contained" fullWidth size="large" sx={{ mt: 1.5 }}>
-            Register
-          </Button>
-        </Box>
-        <Typography sx={{ mt: 1.5 }} textAlign="center" variant="body2">
-          Already have an account? <Link to="/login">Login here</Link>
-        </Typography>
-      </Paper>
-    </Container>
+          >
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              style={{
+                color: theme.palette.mode === "dark" ? "#4a90e2" : "#1976d2",
+                textDecoration: "none",
+                fontWeight: 600,
+              }}
+            >
+              Login here
+            </Link>
+          </Typography>
+        </Paper>
+      </Container>
+    </Box>
   );
 }

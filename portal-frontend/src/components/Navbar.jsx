@@ -17,7 +17,16 @@ export default function Navbar() {
   };
 
   return (
-    <AppBar position="static" color="primary">
+    <AppBar 
+      position="static" 
+      sx={{
+        background: theme.palette.mode === "dark"
+          ? "rgba(10, 14, 39, 0.95)"
+          : "rgba(25, 118, 210, 0.95)",
+        backdropFilter: "blur(10px)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+      }}
+    >
       <Toolbar>
         <Typography
           variant="h6"
@@ -25,7 +34,19 @@ export default function Navbar() {
             const hasToken = !!localStorage.getItem("token");
             navigate(hasToken ? "/dashboard" : "/");
           }}
-          style={{ color: "inherit", textDecoration: "none", flexGrow: 1, cursor: "pointer" }}
+          sx={{
+            color: "inherit",
+            textDecoration: "none",
+            flexGrow: 1,
+            cursor: "pointer",
+            fontWeight: 600,
+            background: theme.palette.mode === "dark"
+              ? "linear-gradient(135deg, #4a90e2 0%, #00d4ff 100%)"
+              : "linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
         >
           Cybersecurity Portal
         </Typography>

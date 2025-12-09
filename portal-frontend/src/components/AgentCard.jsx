@@ -4,62 +4,70 @@ import {
   CardContent,
   CardActions,
   Typography,
-  Chip,
   Box,
-  Stack,
-  Button,
+  Chip,
   IconButton,
+  Tooltip,
+  Menu,
+  MenuItem,
+  Checkbox,
+  Divider,
 } from "@mui/material";
-import { Delete as DeleteIcon } from "@mui/icons-material";
+import {
+  MoreVert as MoreVertIcon,
+  Computer as ComputerIcon,
+  Security as SecurityIcon,
+  NetworkCheck as NetworkIcon,
+  Circle as CircleIcon,
+  FavoriteBorder as HeartbeatIcon,
+  PersonRemove as DeregisterIcon,
+  Description as LogsIcon,
+  ShowChart as MetricsIcon,
+  Visibility as ViewIcon,
+} from "@mui/icons-material";
 
-const AgentCard = ({ agent, onClick, onDeregister }) => {
-  const getTypeIcon = (type) => {
-    switch (type) {
+const AgentCard = ({ 
+  agent, 
+  onClick, 
+  onDeregister, 
+  onHeartbeat, 
+  onViewLogs, 
+  onViewMetrics,
+  isSelected = false,
+  onSelect 
+}) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleMenuClick = (event) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleMenuAction = (action) => {
+    handleMenuClose();
+    action();
+  };
+
+  const getTypeIcon = () => {
+    switch (agent.type) {
       case "server":
-        return (
-          <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
-            />
-          </svg>
-        );
+        return <ComputerIcon />;
       case "firewall":
-        return (
-          <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            />
-          </svg>
-        );
+        return <SecurityIcon />;
       case "network":
-        return (
-          <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-            />
-          </svg>
-        );
+        return <NetworkIcon />;
       default:
-        return (
-          <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-            />
-          </svg>
-        );
+        return <ComputerIcon />;
     }
+  };
+
+  const getStatusColor = () => {
+    return agent.status === "online" ? "success" : "error";
   };
 
   const formatTimestamp = (timestamp) => {
@@ -77,132 +85,216 @@ const AgentCard = ({ agent, onClick, onDeregister }) => {
     return date.toLocaleDateString();
   };
 
-  const handleDeregisterClick = (e) => {
-    e.stopPropagation(); // Prevent card click
-    if (onDeregister) {
-      onDeregister(agent.agentId);
-    }
+  const handleCheckboxClick = (event) => {
+    event.stopPropagation();
+    onSelect();
   };
 
   return (
-    <Card
-      onClick={onClick}
-      sx={{
-        height: "100%",
-        display: "flex",
+    <Card 
+      sx={{ 
+        height: "100%", 
+        display: "flex", 
         flexDirection: "column",
         cursor: "pointer",
-        transition: "box-shadow 0.2s ease",
-        "&:hover": { boxShadow: 6 },
-        position: "relative",
+        transition: "all 0.3s ease",
+        border: isSelected ? 2 : 0,
+        borderColor: "primary.main",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: 6,
+        }
       }}
     >
-      <CardContent>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2} mb={2}>
-          <Stack direction="row" spacing={2} alignItems="center">
+      <CardContent sx={{ flexGrow: 1, pb: 1 }} onClick={onClick}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mr: 2 }}>
+            {onSelect && (
+              <Checkbox
+                checked={isSelected}
+                onClick={handleCheckboxClick}
+                size="small"
+              />
+            )}
             <Box
               sx={{
                 p: 1,
                 borderRadius: 1,
-                bgcolor: agent.status === "online" ? "primary.light" : "grey.100",
-                color: agent.status === "online" ? "primary.main" : "text.secondary",
+                bgcolor: agent.status === "online" ? "success.light" : "error.light",
+                color: agent.status === "online" ? "success.dark" : "error.dark",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              {getTypeIcon(agent.type)}
+              {getTypeIcon()}
             </Box>
-            <Box>
-              <Typography variant="subtitle1" fontWeight={600}>
-                {agent.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {agent.agentId}
-              </Typography>
-            </Box>
-          </Stack>
-
-          <Stack direction="row" spacing={1} alignItems="center">
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Chip
               label={agent.status}
+              color={getStatusColor()}
               size="small"
-              color={agent.status === "online" ? "success" : "default"}
-              variant={agent.status === "online" ? "filled" : "outlined"}
+              icon={<CircleIcon sx={{ fontSize: 10 }} />}
             />
-            {onDeregister && (
-              <IconButton
-                size="small"
-                color="error"
-                onClick={handleDeregisterClick}
-                sx={{ ml: 1 }}
-                aria-label="Deregister agent"
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            )}
-          </Stack>
-        </Stack>
+            <IconButton
+              size="small"
+              onClick={handleMenuClick}
+              sx={{ ml: "auto" }}
+            >
+              <MoreVertIcon />
+            </IconButton>
+          </Box>
+        </Box>
 
-        <Box sx={{ "& > *": { display: "flex", justifyContent: "space-between", mb: 0.5 } }}>
-          <Box>
+        <Typography variant="h6" fontWeight={600} gutterBottom noWrap>
+          {agent.name}
+        </Typography>
+        
+        <Typography variant="caption" color="text.secondary" display="block" gutterBottom noWrap>
+          {agent.agentId}
+        </Typography>
+
+        <Divider sx={{ my: 1.5 }} />
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Typography variant="body2" color="text.secondary">
-              Type
+              Type:
             </Typography>
-            <Typography variant="body2" fontWeight={500}>
-              {agent.type || "N/A"}
+            <Typography variant="body2" fontWeight={500} sx={{ textTransform: "capitalize" }}>
+              {agent.type}
             </Typography>
           </Box>
 
           {agent.hostname && (
-            <Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               <Typography variant="body2" color="text.secondary">
-                Hostname
+                Hostname:
               </Typography>
-              <Typography variant="body2" fontWeight={500}>
+              <Typography variant="body2" fontWeight={500} noWrap sx={{ maxWidth: "150px" }}>
                 {agent.hostname}
               </Typography>
             </Box>
           )}
 
           {agent.platform && (
-            <Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               <Typography variant="body2" color="text.secondary">
-                Platform
+                Platform:
               </Typography>
-              <Typography variant="body2" fontWeight={500}>
+              <Typography variant="body2" fontWeight={500} sx={{ textTransform: "capitalize" }}>
                 {agent.platform}
               </Typography>
             </Box>
           )}
 
-          <Box>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Typography variant="body2" color="text.secondary">
-              Last heartbeat
+              Last Heartbeat:
             </Typography>
             <Typography variant="body2" fontWeight={500}>
               {formatTimestamp(agent.lastHeartbeat)}
             </Typography>
           </Box>
-
-          {agent.policiesApplied !== undefined && (
-            <Box>
-              <Typography variant="body2" color="text.secondary">
-                Policies applied
-              </Typography>
-              <Typography variant="body2" fontWeight={500}>
-                {agent.policiesApplied}
-              </Typography>
-            </Box>
-          )}
         </Box>
       </CardContent>
 
-      <CardActions sx={{ mt: "auto", pt: 0, px: 2, pb: 2 }}>
-        <Button size="small" color="primary">
-          View details
-        </Button>
+      <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
+        <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+          <Tooltip title="View Details">
+            <IconButton 
+              size="small" 
+              color="primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick();
+              }}
+              sx={{ flex: 1 }}
+            >
+              <ViewIcon />
+            </IconButton>
+          </Tooltip>
+          
+          {onViewLogs && (
+            <Tooltip title="View Logs">
+              <IconButton 
+                size="small" 
+                color="info"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onViewLogs();
+                }}
+                sx={{ flex: 1 }}
+              >
+                <LogsIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          {onViewMetrics && (
+            <Tooltip title="View Metrics">
+              <IconButton 
+                size="small" 
+                color="secondary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onViewMetrics();
+                }}
+                sx={{ flex: 1 }}
+              >
+                <MetricsIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
       </CardActions>
+
+      {/* Action Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleMenuClose}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <MenuItem onClick={() => handleMenuAction(onClick)}>
+          <ViewIcon sx={{ mr: 1, fontSize: 20 }} />
+          View Details
+        </MenuItem>
+        
+        {onHeartbeat && (
+          <MenuItem onClick={() => handleMenuAction(onHeartbeat)}>
+            <HeartbeatIcon sx={{ mr: 1, fontSize: 20 }} />
+            Send Heartbeat
+          </MenuItem>
+        )}
+        
+        {onViewLogs && (
+          <MenuItem onClick={() => handleMenuAction(onViewLogs)}>
+            <LogsIcon sx={{ mr: 1, fontSize: 20 }} />
+            View Logs
+          </MenuItem>
+        )}
+        
+        {onViewMetrics && (
+          <MenuItem onClick={() => handleMenuAction(onViewMetrics)}>
+            <MetricsIcon sx={{ mr: 1, fontSize: 20 }} />
+            View Metrics
+          </MenuItem>
+        )}
+        
+        <Divider />
+        
+        {onDeregister && (
+          <MenuItem 
+            onClick={() => handleMenuAction(onDeregister)}
+            sx={{ color: "error.main" }}
+          >
+            <DeregisterIcon sx={{ mr: 1, fontSize: 20 }} />
+            Deregister
+          </MenuItem>
+        )}
+      </Menu>
     </Card>
   );
 };

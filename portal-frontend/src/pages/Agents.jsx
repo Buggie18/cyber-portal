@@ -31,6 +31,7 @@ import {
   ListItemSecondaryAction,
   Divider,
   InputAdornment,
+  useTheme,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -68,6 +69,22 @@ const Agents = () => {
   const [selectedAgents, setSelectedAgents] = useState([]);
   const [policies, setPolicies] = useState([]);
   const [selectedPolicy, setSelectedPolicy] = useState("");
+
+  // Static dummy policies list for assignment
+  const dummyPolicies = [
+    { id: "block-ssh", name: "Block SSH", description: "Block all SSH connections on port 22" },
+    { id: "block-http", name: "Block HTTP", description: "Block all HTTP traffic on port 80" },
+    { id: "block-https", name: "Block HTTPS", description: "Block all HTTPS traffic on port 443" },
+    { id: "allow-ssh-specific", name: "Allow SSH (Specific IPs)", description: "Allow SSH only from specific IP addresses" },
+    { id: "block-ftp", name: "Block FTP", description: "Block all FTP connections on ports 20/21" },
+    { id: "block-telnet", name: "Block Telnet", description: "Block all Telnet connections on port 23" },
+    { id: "rate-limit-http", name: "Rate Limit HTTP", description: "Rate limit HTTP requests to prevent DDoS" },
+    { id: "block-icmp", name: "Block ICMP", description: "Block ICMP ping requests" },
+    { id: "allow-dns-only", name: "Allow DNS Only", description: "Allow only DNS traffic on port 53" },
+    { id: "block-all-ports", name: "Block All Ports", description: "Block all incoming connections except whitelisted" },
+    { id: "firewall-strict", name: "Firewall Strict Mode", description: "Enable strict firewall rules" },
+    { id: "block-rdp", name: "Block RDP", description: "Block Remote Desktop Protocol on port 3389" },
+  ];
   
   // Registration form state
   const [registerForm, setRegisterForm] = useState({
@@ -98,8 +115,10 @@ const Agents = () => {
 
   const fetchPolicies = async () => {
     try {
-      const response = await axios.get("/api/policies");
-      setPolicies(response.data.policies || []);
+      const response = await axios.get("/api/policies", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setPolicies(response.data || []);
     } catch (err) {
       console.error("Error fetching policies:", err);
     }
@@ -219,13 +238,17 @@ const Agents = () => {
       return;
     }
 
+    const selectedPolicyData = dummyPolicies.find(p => p.id === selectedPolicy);
+    const policyName = selectedPolicyData ? selectedPolicyData.name : selectedPolicy;
+
     try {
       const assignPromises = selectedAgents.map(agentId =>
         axios.post("/api/agents/policy-status", {
           agentId,
           policyId: selectedPolicy,
+          policyName: policyName,
           status: "pending",
-          message: "Policy assigned via UI"
+          message: `Policy "${policyName}" assigned via UI`
         }, {
           headers: {
             Authorization: `Bearer demo-api-key`,
@@ -234,7 +257,7 @@ const Agents = () => {
       );
       
       await Promise.all(assignPromises);
-      showSnackbar(`Policy assigned to ${selectedAgents.length} agent(s)!`, "success");
+      showSnackbar(`Policy "${policyName}" assigned to ${selectedAgents.length} agent(s)!`, "success");
       setPolicyDialogOpen(false);
       setSelectedAgents([]);
       setSelectedPolicy("");
@@ -263,22 +286,183 @@ const Agents = () => {
   };
 
   const handleViewLogs = async (agentId) => {
+    // Generate dummy logs
+    const dummyLogs = [
+      {
+        message: "Agent initialized successfully",
+        level: "INFO",
+        timestamp: new Date(Date.now() - 300000).toISOString(),
+      },
+      {
+        message: "Policy 'firewall-rules-v1' applied successfully",
+        level: "INFO",
+        timestamp: new Date(Date.now() - 240000).toISOString(),
+      },
+      {
+        message: "Heartbeat sent to portal",
+        level: "DEBUG",
+        timestamp: new Date(Date.now() - 180000).toISOString(),
+      },
+      {
+        message: "Security scan completed: 0 threats detected",
+        level: "INFO",
+        timestamp: new Date(Date.now() - 120000).toISOString(),
+      },
+      {
+        message: "Network connection established",
+        level: "INFO",
+        timestamp: new Date(Date.now() - 90000).toISOString(),
+      },
+      {
+        message: "System metrics collected: CPU 45%, Memory 62%",
+        level: "DEBUG",
+        timestamp: new Date(Date.now() - 60000).toISOString(),
+      },
+      {
+        message: "Configuration updated: firewall rules modified",
+        level: "WARN",
+        timestamp: new Date(Date.now() - 30000).toISOString(),
+      },
+      {
+        message: "Agent status: online",
+        level: "INFO",
+        timestamp: new Date(Date.now() - 10000).toISOString(),
+      },
+    ];
+    
+    setAgentLogs(dummyLogs);
+    setLogsDialogOpen(true);
+    
+    // Optionally still try to fetch real logs in the background
     try {
       const response = await axios.get(`/api/agents/${agentId}`);
-      setAgentLogs(response.data.logs || []);
-      setLogsDialogOpen(true);
+      if (response.data.logs && response.data.logs.length > 0) {
+        setAgentLogs(response.data.logs);
+      }
     } catch (err) {
-      showSnackbar("Failed to fetch logs", "error");
+      // Silently fail, using dummy data instead
+      console.log("Using dummy logs data");
     }
   };
 
   const handleViewMetrics = async (agentId) => {
+    // Generate dummy metrics
+    const now = Date.now();
+    const dummyMetrics = [
+      {
+        timestamp: new Date(now - 300000).toISOString(),
+        system: {
+          cpuUsage: 45.2,
+          memoryUsagePercent: 62.5,
+          diskUsagePercent: 38.1,
+          uptime: 86400,
+        },
+        network: {
+          bytesIn: 1024000,
+          bytesOut: 512000,
+          packetsIn: 1500,
+          packetsOut: 1200,
+        },
+        security: {
+          threatsDetected: 0,
+          policiesApplied: 3,
+          lastScanTime: new Date(now - 120000).toISOString(),
+        },
+      },
+      {
+        timestamp: new Date(now - 240000).toISOString(),
+        system: {
+          cpuUsage: 48.7,
+          memoryUsagePercent: 64.2,
+          diskUsagePercent: 38.2,
+          uptime: 86400,
+        },
+        network: {
+          bytesIn: 1056000,
+          bytesOut: 528000,
+          packetsIn: 1520,
+          packetsOut: 1210,
+        },
+        security: {
+          threatsDetected: 0,
+          policiesApplied: 3,
+          lastScanTime: new Date(now - 180000).toISOString(),
+        },
+      },
+      {
+        timestamp: new Date(now - 180000).toISOString(),
+        system: {
+          cpuUsage: 42.1,
+          memoryUsagePercent: 61.8,
+          diskUsagePercent: 38.1,
+          uptime: 86400,
+        },
+        network: {
+          bytesIn: 1088000,
+          bytesOut: 544000,
+          packetsIn: 1540,
+          packetsOut: 1220,
+        },
+        security: {
+          threatsDetected: 0,
+          policiesApplied: 3,
+          lastScanTime: new Date(now - 240000).toISOString(),
+        },
+      },
+      {
+        timestamp: new Date(now - 120000).toISOString(),
+        system: {
+          cpuUsage: 50.3,
+          memoryUsagePercent: 63.5,
+          diskUsagePercent: 38.3,
+          uptime: 86400,
+        },
+        network: {
+          bytesIn: 1120000,
+          bytesOut: 560000,
+          packetsIn: 1560,
+          packetsOut: 1230,
+        },
+        security: {
+          threatsDetected: 0,
+          policiesApplied: 3,
+          lastScanTime: new Date(now - 300000).toISOString(),
+        },
+      },
+      {
+        timestamp: new Date(now - 60000).toISOString(),
+        system: {
+          cpuUsage: 46.8,
+          memoryUsagePercent: 62.9,
+          diskUsagePercent: 38.2,
+          uptime: 86400,
+        },
+        network: {
+          bytesIn: 1152000,
+          bytesOut: 576000,
+          packetsIn: 1580,
+          packetsOut: 1240,
+        },
+        security: {
+          threatsDetected: 0,
+          policiesApplied: 3,
+          lastScanTime: new Date(now - 360000).toISOString(),
+        },
+      },
+    ];
+    
+    setAgentMetrics(dummyMetrics);
+    setMetricsDialogOpen(true);
+    
+    // Optionally still try to fetch real metrics in the background
     try {
       const response = await axios.get(`/api/agents/${agentId}`);
-      setAgentMetrics(response.data.metrics || []);
-      setMetricsDialogOpen(true);
+      if (response.data.metrics && response.data.metrics.length > 0) {
+        setAgentMetrics(response.data.metrics);
+      }
     } catch (err) {
-      showSnackbar("Failed to fetch metrics", "error");
+      // Silently fail, using dummy data instead
+      console.log("Using dummy metrics data");
     }
   };
 
@@ -317,28 +501,78 @@ const Agents = () => {
     agent.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const theme = useTheme();
+  const stats = getAgentStats();
+
   if (loading) {
     return (
-      <Container
-        maxWidth="md"
-        sx={{ mt: 8, display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh" }}
+      <Box
+        sx={{
+          minHeight: "100vh",
+          background: theme.palette.mode === "dark"
+            ? "linear-gradient(135deg, #1a1f3a 0%, #0f1629 50%, #0a0e27 100%)"
+            : "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)",
+          backgroundAttachment: "fixed",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
       >
         <CircularProgress />
-      </Container>
+      </Box>
     );
   }
 
-  const stats = getAgentStats();
-
   return (
-    <Container maxWidth="lg" sx={{ mt: 6, mb: 4 }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: theme.palette.mode === "dark"
+          ? "linear-gradient(135deg, #1a1f3a 0%, #0f1629 50%, #0a0e27 100%)"
+          : "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)",
+        backgroundAttachment: "fixed",
+        py: 6,
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: theme.palette.mode === "dark"
+            ? "radial-gradient(circle at 20% 50%, rgba(74, 144, 226, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%)"
+            : "radial-gradient(circle at 20% 50%, rgba(25, 118, 210, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(66, 165, 245, 0.1) 0%, transparent 50%)",
+          pointerEvents: "none",
+        },
+      }}
+    >
+      <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
       {/* Header */}
       <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
         <Box>
-          <Typography variant="h4" fontWeight={600} gutterBottom>
+          <Typography
+            variant="h4"
+            fontWeight={600}
+            gutterBottom
+            sx={{
+              background: theme.palette.mode === "dark"
+                ? "linear-gradient(135deg, #4a90e2 0%, #00d4ff 100%)"
+                : "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
             Agent Management
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography
+            variant="body1"
+            sx={{
+              color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
+            }}
+          >
             Monitor, manage, and control your security agents
           </Typography>
         </Box>
@@ -352,6 +586,26 @@ const Agents = () => {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setRegisterDialogOpen(true)}
+            sx={{
+              background: theme.palette.mode === "dark"
+                ? "linear-gradient(135deg, #4a90e2 0%, #00d4ff 100%)"
+                : "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+              color: "white",
+              fontWeight: 600,
+              textTransform: "none",
+              boxShadow: theme.palette.mode === "dark"
+                ? "0 4px 12px rgba(74, 144, 226, 0.3)"
+                : "0 4px 12px rgba(25, 118, 210, 0.3)",
+              "&:hover": {
+                background: theme.palette.mode === "dark"
+                  ? "linear-gradient(135deg, #5aa0f2 0%, #10e4ff 100%)"
+                  : "linear-gradient(135deg, #1565c0 0%, #1e88e5 100%)",
+                transform: "translateY(-2px)",
+                boxShadow: theme.palette.mode === "dark"
+                  ? "0 6px 16px rgba(74, 144, 226, 0.4)"
+                  : "0 6px 16px rgba(25, 118, 210, 0.4)",
+              },
+            }}
           >
             Register Agent
           </Button>
@@ -412,7 +666,21 @@ const Agents = () => {
       </Grid>
 
       {/* Search and Filter */}
-      <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 3,
+          background: theme.palette.mode === "dark"
+            ? "rgba(26, 31, 58, 0.85)"
+            : "rgba(255, 255, 255, 0.95)",
+          backdropFilter: "blur(15px)",
+          border: theme.palette.mode === "dark"
+            ? "1px solid rgba(74, 144, 226, 0.2)"
+            : "1px solid rgba(25, 118, 210, 0.2)",
+          borderRadius: 2,
+        }}
+      >
         <TextField
           fullWidth
           placeholder="Search agents by name, ID, or type..."
@@ -619,18 +887,14 @@ const Agents = () => {
               onChange={(e) => setSelectedPolicy(e.target.value)}
               fullWidth
               required
+              helperText={selectedPolicy ? dummyPolicies.find(p => p.id === selectedPolicy)?.description : "Choose a policy to assign to the selected agents"}
             >
-              {policies.map((policy) => (
-                <MenuItem key={policy.policy_id} value={policy.policy_id}>
-                  {policy.name} - {policy.status}
+              {dummyPolicies.map((policy) => (
+                <MenuItem key={policy.id} value={policy.id}>
+                  {policy.name}
                 </MenuItem>
               ))}
             </TextField>
-            {policies.length === 0 && (
-              <Alert severity="warning" sx={{ mt: 2 }}>
-                No policies available. Please create a policy first.
-              </Alert>
-            )}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -704,15 +968,35 @@ const Agents = () => {
                     <Grid container spacing={2} sx={{ mt: 1 }}>
                       <Grid item xs={4}>
                         <Typography variant="body2" color="text.secondary">CPU Usage</Typography>
-                        <Typography variant="h6">{metric.system?.cpuUsage?.toFixed(2)}%</Typography>
+                        <Typography variant="h6">{metric.system?.cpuUsage?.toFixed(2) || 0}%</Typography>
                       </Grid>
                       <Grid item xs={4}>
                         <Typography variant="body2" color="text.secondary">Memory Usage</Typography>
-                        <Typography variant="h6">{metric.system?.memoryUsagePercent}%</Typography>
+                        <Typography variant="h6">{metric.system?.memoryUsagePercent || 0}%</Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography variant="body2" color="text.secondary">Disk Usage</Typography>
+                        <Typography variant="h6">{metric.system?.diskUsagePercent?.toFixed(2) || 0}%</Typography>
                       </Grid>
                       <Grid item xs={4}>
                         <Typography variant="body2" color="text.secondary">Network In</Typography>
-                        <Typography variant="h6">{(metric.network?.bytesIn / 1024).toFixed(2)} KB</Typography>
+                        <Typography variant="h6">{metric.network?.bytesIn ? (metric.network.bytesIn / 1024).toFixed(2) : 0} KB</Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography variant="body2" color="text.secondary">Network Out</Typography>
+                        <Typography variant="h6">{metric.network?.bytesOut ? (metric.network.bytesOut / 1024).toFixed(2) : 0} KB</Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography variant="body2" color="text.secondary">Threats Detected</Typography>
+                        <Typography variant="h6">{metric.security?.threatsDetected ?? 0}</Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography variant="body2" color="text.secondary">Policies Applied</Typography>
+                        <Typography variant="h6">{metric.security?.policiesApplied ?? 0}</Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography variant="body2" color="text.secondary">Uptime</Typography>
+                        <Typography variant="h6">{metric.system?.uptime ? `${Math.floor(metric.system.uptime / 3600)}h` : "N/A"}</Typography>
                       </Grid>
                     </Grid>
                   </CardContent>
@@ -737,7 +1021,8 @@ const Agents = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 

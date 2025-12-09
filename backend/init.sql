@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL
+    password_hash TEXT NOT NULL,
+    role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin'))
 );
 
 CREATE TABLE IF NOT EXISTS policies (
@@ -67,3 +68,14 @@ $$;
 -- VALUES 
 --     ('agent-demo-1', 'Demo Server Agent', 'server', 'srv-001.local', 'linux', 'offline'),
 --     ('agent-demo-2', 'Demo Firewall Agent', 'firewall', 'fw-001.local', 'linux', 'offline');
+
+-- Migration: Add role column to existing users table if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'users' AND column_name = 'role'
+    ) THEN
+        ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin'));
+    END IF;
+END $$;

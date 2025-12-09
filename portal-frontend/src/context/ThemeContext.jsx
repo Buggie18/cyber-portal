@@ -27,10 +27,11 @@ export default function ThemeContextProvider({ children }) {
       createTheme({
         palette: {
           mode,
-          primary: { main: mode === "light" ? "#1976d2" : "#90caf9" },
+          primary: { main: mode === "light" ? "#1976d2" : "#4a90e2" },
+          secondary: { main: mode === "light" ? "#dc004e" : "#00d4ff" },
           background: {
-            default: mode === "light" ? "#f4f6f8" : "#121212",
-            paper: mode === "light" ? "#ffffff" : "#1e1e1e",
+            default: mode === "light" ? "#f4f6f8" : "#0a0e27",
+            paper: mode === "light" ? "#ffffff" : "#1a1f3a",
           },
         },
         typography: {
@@ -38,6 +39,19 @@ export default function ThemeContextProvider({ children }) {
         },
         shape: {
           borderRadius: 12, // smoother rounded corners
+        },
+        components: {
+          MuiCssBaseline: {
+            styleOverrides: {
+              body: {
+                background: mode === "dark" 
+                  ? "linear-gradient(135deg, #1a1f3a 0%, #0f1629 50%, #0a0e27 100%)"
+                  : undefined,
+                backgroundAttachment: "fixed",
+                minHeight: "100vh",
+              },
+            },
+          },
         },
       }),
     [mode]

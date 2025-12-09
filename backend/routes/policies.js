@@ -19,8 +19,19 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Add a new policy
-router.post("/policies", authenticateToken, async (req, res) => {
+// Middleware to check if user is admin
+function requireAdmin(req, res, next) {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ 
+      success: false, 
+      error: "❌ Access denied. Admin role required to add policies." 
+    });
+  }
+  next();
+}
+
+// Add a new policy (admin only)
+router.post("/policies", authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { name, definition } = req.body;
     const created_by = req.user.username;

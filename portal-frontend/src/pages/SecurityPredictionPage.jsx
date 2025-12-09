@@ -14,7 +14,8 @@ import {
   CardContent,
   Chip,
   Stack,
-  Avatar
+  Avatar,
+  useTheme
 } from "@mui/material";
 import { Security, Psychology, Assessment, Warning, CheckCircle } from "@mui/icons-material";
 import {
@@ -244,15 +245,66 @@ const SecurityPredictionPage = () => {
     }
   };
 
+  const theme = useTheme();
+
   return (
-    <Container maxWidth="md" sx={{ mt: 6 }}>
-      <Paper elevation={4} sx={{ p: 5 }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: theme.palette.mode === "dark"
+          ? "linear-gradient(135deg, #1a1f3a 0%, #0f1629 50%, #0a0e27 100%)"
+          : "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)",
+        backgroundAttachment: "fixed",
+        py: 6,
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: theme.palette.mode === "dark"
+            ? "radial-gradient(circle at 20% 50%, rgba(74, 144, 226, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%)"
+            : "radial-gradient(circle at 20% 50%, rgba(25, 118, 210, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(66, 165, 245, 0.1) 0%, transparent 50%)",
+          pointerEvents: "none",
+        },
+      }}
+    >
+      <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 5,
+            background: theme.palette.mode === "dark"
+              ? "rgba(26, 31, 58, 0.85)"
+              : "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(15px)",
+            border: theme.palette.mode === "dark"
+              ? "1px solid rgba(74, 144, 226, 0.2)"
+              : "1px solid rgba(25, 118, 210, 0.2)",
+            borderRadius: 4,
+          }}
+        >
         {/* Header */}
         <Stack alignItems="center" spacing={2} sx={{ mb: 4 }}>
           <Avatar sx={{ bgcolor: "primary.main", width: 56, height: 56 }}>
             <Security />
           </Avatar>
-          <Typography variant="h4" fontWeight={700} textAlign="center">
+          <Typography
+            variant="h4"
+            fontWeight={700}
+            textAlign="center"
+            sx={{
+              background: theme.palette.mode === "dark"
+                ? "linear-gradient(135deg, #4a90e2 0%, #00d4ff 100%)"
+                : "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
             Server Security Prediction
           </Typography>
           <Typography variant="body1" color="text.secondary" textAlign="center">
@@ -467,8 +519,9 @@ const SecurityPredictionPage = () => {
             </CardContent>
           </Card>
         )}
-      </Paper>
-    </Container>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 
