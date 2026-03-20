@@ -1,4 +1,4 @@
-# 🛡️ Cyber Portal — AI-Powered Cybersecurity Incident Response System
+# AI-Powered Cybersecurity Incident Response System
 
 A full-stack cybersecurity monitoring and incident response platform featuring **real-time breach detection**, **AI-powered report generation**, **ML-based security predictions**, **blockchain-verified policy management**, and **autonomous security agents**.
 
